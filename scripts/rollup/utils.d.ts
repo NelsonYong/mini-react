@@ -1,0 +1,1 @@
+export function resolvePkgPath(pkgName: string, isDist?: boolean): string
