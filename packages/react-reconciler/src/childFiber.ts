@@ -6,6 +6,8 @@ import { HostText } from './workTags';
 import { Placement } from './fiberFlags';
 
 function ChildReconciler(shouldTrackSideEffects: boolean) {
+  console.log("首屏渲染");
+
   // 处理单个 Element 节点的情况
   // 对比 currentFiber 与 ReactElement
   // 生成 workInProgress FiberNode

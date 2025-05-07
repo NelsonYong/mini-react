@@ -1,14 +1,15 @@
-
-import { HostComponent, HostRoot, HostText } from "./workTags";
-import { FiberNode } from "./fiber";
-import { processUpdateQueue, UpdateQueue } from "./updateQueue";
-import { ReactElementType } from "shared/ReactTypes";
-import { mountChildFibers, reconcileChildFibers } from "./childFiber";
+import { ReactElementType } from 'shared/ReactTypes';
+import { FiberNode } from './fiber';
+import { UpdateQueue, processUpdateQueue } from './updateQueue';
+import {
+  HostComponent,
+  HostRoot,
+  HostText
+} from './workTags';
+import { reconcileChildFibers, mountChildFibers } from './childFiber';
 
 // 比较并返回子 FiberNode
 export const beginWork = (workInProgress: FiberNode) => {
-  console.log("workInProgress", workInProgress);
-
   switch (workInProgress.tag) {
     case HostRoot:
       return updateHostRoot(workInProgress);
@@ -47,7 +48,6 @@ function updateHostRoot(workInProgress: FiberNode) {
   return workInProgress.child;
 }
 
-
 function updateHostComponent(workInProgress: FiberNode) {
   const nextProps = workInProgress.pendingProps;
   const nextChildren = nextProps.children;
@@ -55,11 +55,22 @@ function updateHostComponent(workInProgress: FiberNode) {
   return workInProgress.child;
 }
 
+// function updateFunctionComponent(workInProgress: FiberNode, renderLane: Lane) {
+//   const nextChildren = renderWithHooks(workInProgress, renderLane);
+//   reconcileChildren(workInProgress, nextChildren);
+//   return workInProgress.child;
+// }
+
 function updateHostText() {
   // 没有子节点，直接返回 null
   return null;
 }
 
+// function updateFragment(workInProgress: FiberNode) {
+//   const nextChildren = workInProgress.pendingProps;
+//   reconcileChildren(workInProgress, nextChildren);
+//   return workInProgress.child;
+// }
 
 // 对比子节点的 current FiberNode 与 子节点的 ReactElement
 // 生成子节点对应的 workInProgress FiberNode
@@ -78,6 +89,7 @@ function reconcileChildren(
     );
   } else {
     // 首屏渲染阶段
+    console.log('workInProgress mounted', workInProgress);
     workInProgress.child = mountChildFibers(workInProgress, null, children);
   }
 }

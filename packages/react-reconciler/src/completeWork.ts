@@ -4,7 +4,7 @@ import {
   createInstance,
   createTextInstance,
   Container,
-  Instance
+  Instance,
 } from 'hostConfig';
 import { FiberNode } from './fiber';
 import { HostComponent, HostRoot, HostText } from './workTags';
@@ -14,9 +14,11 @@ import { NoFlags } from './fiberFlags';
 export const completeWork = (workInProgress: FiberNode) => {
   const newProps = workInProgress.pendingProps;
   const current = workInProgress.alternate;
+
   switch (workInProgress.tag) {
     case HostRoot:
       bubbleProperties(workInProgress);
+      appendAllChildren(workInProgress.stateNode?.container, workInProgress);
       return null;
 
     case HostComponent:
@@ -26,6 +28,10 @@ export const completeWork = (workInProgress: FiberNode) => {
         // 首屏渲染阶段
         // 构建 DOM
         const instance = createInstance(workInProgress.type, newProps);
+        console.log({
+          instance,
+          workInProgress
+        });
         // 将 DOM 插入到 DOM 树中
         appendAllChildren(instance, workInProgress);
         workInProgress.stateNode = instance;
@@ -62,6 +68,8 @@ function appendAllChildren(
   let node = workInProgress.child;
   while (node !== null) {
     if (node.tag == HostComponent || node.tag == HostText) {
+      console.log("nodenode", node.stateNode);
+
       // 处理原生 DOM 元素节点或文本节点
       appendInitialChild(parent, node.stateNode);
     } else if (node.child !== null) {
@@ -85,6 +93,7 @@ function appendAllChildren(
     node = node.sibling;
   }
 }
+
 
 // 收集更新 flags，将子 FiberNode 的 flags 冒泡到父 FiberNode 上
 function bubbleProperties(workInProgress: FiberNode) {

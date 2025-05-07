@@ -89,18 +89,21 @@ export class FiberRootNode {
 
 
 // 根据 FiberRootNode.current 创建 workInProgress
+// 根据 FiberRootNode.current 创建 workInProgress
 export const createWorkInProgress = (
   current: FiberNode,
   pendingProps: Props
 ): FiberNode => {
   let workInProgress = current.alternate;
+  const currentAlternate = current.alternate;
+
   if (workInProgress == null) {
     // 首屏渲染时（mount）
     workInProgress = new FiberNode(current.tag, pendingProps, current.key);
     workInProgress.stateNode = current.stateNode;
 
     // 双缓冲机制
-    workInProgress.alternate = current;
+    workInProgress.alternate = currentAlternate;
     current.alternate = workInProgress;
   } else {
     // 非首屏渲染时（update）
@@ -118,6 +121,7 @@ export const createWorkInProgress = (
 
   return workInProgress;
 };
+
 
 
 // 根据 DOM 节点创建新的 Fiber 节点

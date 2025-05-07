@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DOMElement, updateFiberProps } from "./SyntheticEvent";
+
 export type Container =
   | (Element)
   | (Document)
@@ -7,10 +9,13 @@ export type Container =
 
 export type Instance = Container;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export const createInstance = (type: string, props: any): Instance => {
   // TODO: 处理 props
   const element = document.createElement(type);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  updateFiberProps(element as DOMElement, props);
   return element;
 };
 

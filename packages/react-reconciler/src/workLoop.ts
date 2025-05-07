@@ -1,12 +1,12 @@
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
-import { createWorkInProgress, FiberNode } from './fiber';
+import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
 import { HostRoot } from './workTags';
 
 let workInProgress: FiberNode | null = null;
 
-function renderRoot(root: FiberNode) {
-  prepareFreshStack(root);
+function renderRoot(root: FiberRootNode) {
+  prepareFreshStack(root.current);
   try {
     workLoop();
   } catch (e) {
@@ -28,10 +28,11 @@ function workLoop() {
 }
 
 function performUnitOfWork(fiber: FiberNode) {
+  // console.log("fiber", fiber);
+  // debugger
   // 比较并返回子 FiberNode
   const next = beginWork(fiber);
   fiber.memoizedProps = fiber.pendingProps;
-
   if (next == null) {
     // 没有子节点，则遍历兄弟节点或父节点
     completeUnitOfWork(fiber);
@@ -69,6 +70,7 @@ export function scheduleUpdateOnFiber(fiber: FiberNode) {
 // 从触发更新的节点向上遍历到 FiberRootNode
 function markUpdateFromFiberToRoot(fiber: FiberNode) {
   let node = fiber;
+
   while (node.return !== null) {
     node = node.return;
   }
@@ -77,3 +79,4 @@ function markUpdateFromFiberToRoot(fiber: FiberNode) {
   }
   return null;
 }
+
