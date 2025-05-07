@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "react": "workspace:*",
-    "react-dom": "18.x"
+    "react-dom": "workspace:*"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

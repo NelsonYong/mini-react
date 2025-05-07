@@ -19,6 +19,10 @@
     "noUnusedParameters": false,
     "noImplicitReturns": false,
     "skipLibCheck": true,
-    "baseUrl": "./packages"
+    "baseUrl": "./packages",
+    "types": ["./global.d.ts"],
+    "paths": {
+      "hostConfig": ["./react-dom/src/hostConfig.ts"]
+    }
   }
 }

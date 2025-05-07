@@ -1,8 +1,15 @@
-// import { createRoot } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 // import "./index.css";
 import App from "./App.tsx";
-import React from "react";
+// import React from "react";
 
-console.log("React", React);
+console.log(document.getElementById("root"));
 
-console.log(<App name="test" />);
+const root = createRoot(document.getElementById("root")!);
+
+console.log("root", root);
+
+root.render(
+  // @ts-ignore
+  "qqqq"
+);

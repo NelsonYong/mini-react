@@ -13,13 +13,17 @@ export default defineConfig({
         find: "react",
         replacement: resolvePkgPath("react"),
       },
-      // {
-      //   find: "hostConfig",
-      //   replacement: path.resolve(
-      //     resolvePkgPath("react-dom"),
-      //     "./src/hostConfig.ts"
-      //   ),
-      // },
+      {
+        find: "react-dom",
+        replacement: resolvePkgPath("react-dom"),
+      },
+      {
+        find: "hostConfig",
+        replacement: path.resolve(
+          resolvePkgPath("react-dom"),
+          "./src/hostConfig.ts"
+        ),
+      },
     ],
   },
 });
