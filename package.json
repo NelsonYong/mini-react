@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "demo:react-jsx": "cd demo/react-jsx && pnpm dev",
+    "demo:react-jsx": "cd demos/react-jsx-demo && pnpm dev",
     "build-dev": "rimraf dist && rollup --config scripts/rollup/dev.config.js --bundleConfigAsCjs"
   },
   "keywords": [],

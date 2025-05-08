@@ -1,11 +1,11 @@
-// import { jsx } from "./src/jsx";
+import { jsx } from "./src/jsx";
 import currentDispatcher, { Dispatcher, resolveDispatcher } from "./src/currentDispatcher";
 
 
-// export default {
-//   version: "1.0.0",
-//   createElement: jsx,
-// };
+export default {
+  version: "1.0.0",
+  createElement: jsx,
+};
 
 
 export const useState: Dispatcher['useState'] = (initialState) => {
