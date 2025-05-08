@@ -41,7 +41,6 @@ function updateHostRoot(workInProgress: FiberNode) {
   // 计算待更新状态的最新值
   const { memoizedState } = processUpdateQueue(baseState, pending);
   workInProgress.memoizedState = memoizedState;
-
   // 处理子节点的更新逻辑
   const nextChildren = workInProgress.memoizedState;
   reconcileChildren(workInProgress, nextChildren);

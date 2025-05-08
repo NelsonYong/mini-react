@@ -14,6 +14,13 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
     languageOptions: { globals: globals.browser },
   },
-  tseslint.configs.recommended,
+  {
+    ...tseslint.configs.recommended,
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      "@typescript-eslint/no-var-requires": "off",
+      "react-refresh/only-export-components": "off",
+    },
+  },
   pluginReact.configs.flat.recommended,
 ]);

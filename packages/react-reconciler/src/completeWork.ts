@@ -31,10 +31,6 @@ export const completeWork = (workInProgress: FiberNode) => {
         // 首屏渲染阶段
         // 构建 DOM
         const instance = createInstance(workInProgress.type, newProps);
-        console.log({
-          instance,
-          workInProgress
-        });
         // 将 DOM 插入到 DOM 树中
         appendAllChildren(instance, workInProgress);
         workInProgress.stateNode = instance;

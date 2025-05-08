@@ -39,6 +39,7 @@ export class FiberNode {
   alternate: FiberNode | null;
   flags: Flags;
   subtreeFlags: Flags;
+  deletions: FiberNode[] | null;
   updateQueue: unknown;
 
   /**
@@ -69,6 +70,8 @@ export class FiberNode {
     this.flags = NoFlags; // 表示节点的副作用类型，如更新、插入、删除等
     this.subtreeFlags = NoFlags; // 表示子节点的副作用类型，如更新、插入、删除等
     this.updateQueue = null; // 更新计划队列
+
+    this.deletions = null;  // 指向待删除的子节点，用于在协调过程中进行删除
 
   }
 }

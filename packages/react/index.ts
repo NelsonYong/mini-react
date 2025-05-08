@@ -1,6 +1,13 @@
 import { jsx } from "./src/jsx";
 import currentDispatcher, { Dispatcher, resolveDispatcher } from "./src/currentDispatcher";
+import {
+  type ReactElementType
+} from 'shared'
 
+
+export {
+  ReactElementType
+}
 
 export default {
   version: "1.0.0",
@@ -9,6 +16,8 @@ export default {
 
 
 export const useState: Dispatcher['useState'] = (initialState) => {
+  console.log("8888");
+
   const dispatcher = resolveDispatcher();
   return dispatcher.useState(initialState);
 };

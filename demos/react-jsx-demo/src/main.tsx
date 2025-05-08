@@ -1,11 +1,20 @@
 import { createRoot } from "react-dom/client";
-import type { ReactElementType } from "../../../packages/shared";
-import { useState } from "react";
+import { useState, type ReactElementType } from "react";
 
 function App() {
-  const [count, setCount] = useState(1000);
-  const [name] = useState("Yang jay5555");
-  return <div>{count + name + 8999888}</div>;
+  const [count, setCount] = useState(0);
+  return (
+    <button
+      onClick={() => {
+        setCount((prev) => {
+          console.log("prev", prev);
+          return prev + 1;
+        });
+      }}
+    >
+      {count}
+    </button>
+  );
 }
 
 const root = createRoot(document.getElementById("root")!);

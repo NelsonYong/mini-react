@@ -63,7 +63,11 @@ function completeUnitOfWork(fiber: FiberNode) {
 
 // 调度功能
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
+  console.log("fiber", fiber);
+
   const root = markUpdateFromFiberToRoot(fiber);
+  console.log("root", root);
+
   renderRoot(root);
 }
 

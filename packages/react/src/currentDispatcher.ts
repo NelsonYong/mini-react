@@ -1,8 +1,5 @@
 import { Action } from 'shared/ReactTypes';
 
-// const [data, setData] = useState(0);
-// or
-// const [data, setData] = useState(0data) => data + 1);
 export interface Dispatcher {
   useState: <S>(initialState: (() => S) | S) => [S, Dispatch<S>];
 }
