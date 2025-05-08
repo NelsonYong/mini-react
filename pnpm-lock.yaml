@@ -95,7 +95,7 @@ importers:
 
   packages/react-reconciler:
     specifiers:
-      shared: 'workspace: *'
+      shared: workspace:*
     dependencies:
       shared: link:../shared
 
