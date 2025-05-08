@@ -1,8 +1,11 @@
 {
   "name": "shared",
   "version": "1.0.0",
-   "description": "shared hepler functions and symbols",
+  "description": "shared hepler functions and symbols",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "workspace:*"
+  }
 }

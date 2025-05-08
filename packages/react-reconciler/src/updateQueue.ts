@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Action } from 'shared/ReactTypes';
 import { Update } from './fiberFlags';
+import { Dispatch } from 'react/src/currentDispatcher';
 
 // 定义 Update 数据结构
 export interface Update<State> {
@@ -13,6 +14,8 @@ export interface UpdateQueue<State> {
   shared: {
     pending: Update<State> | null;
   };
+  dispatch: Dispatch<State> | null;
+
 }
 
 // 创建 Update 实例的方法
@@ -28,7 +31,8 @@ export const createUpdateQueue = <State>(): UpdateQueue<State> => {
   return {
     shared: {
       pending: null
-    }
+    },
+    dispatch: null
   };
 };
 

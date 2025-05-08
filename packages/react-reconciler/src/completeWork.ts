@@ -7,7 +7,7 @@ import {
   Instance,
 } from 'hostConfig';
 import { FiberNode } from './fiber';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { NoFlags } from './fiberFlags';
 
 // 生成更新计划，计算和收集更新 flags
@@ -19,6 +19,9 @@ export const completeWork = (workInProgress: FiberNode) => {
     case HostRoot:
       bubbleProperties(workInProgress);
       appendAllChildren(workInProgress.stateNode?.container, workInProgress);
+      return null;
+    case FunctionComponent:
+      bubbleProperties(workInProgress);
       return null;
 
     case HostComponent:

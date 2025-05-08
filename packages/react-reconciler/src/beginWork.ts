@@ -2,11 +2,13 @@ import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { UpdateQueue, processUpdateQueue } from './updateQueue';
 import {
+  FunctionComponent,
   HostComponent,
   HostRoot,
   HostText
 } from './workTags';
 import { reconcileChildFibers, mountChildFibers } from './childFiber';
+import { renderWithHooks } from './fiberHooks';
 
 // 比较并返回子 FiberNode
 export const beginWork = (workInProgress: FiberNode) => {
@@ -15,8 +17,8 @@ export const beginWork = (workInProgress: FiberNode) => {
       return updateHostRoot(workInProgress);
     case HostComponent:
       return updateHostComponent(workInProgress);
-    // case FunctionComponent:
-    //   return updateFunctionComponent(workInProgress);
+    case FunctionComponent:
+      return updateFunctionComponent(workInProgress);
     case HostText:
       return updateHostText();
     // case Fragment:
@@ -55,11 +57,11 @@ function updateHostComponent(workInProgress: FiberNode) {
   return workInProgress.child;
 }
 
-// function updateFunctionComponent(workInProgress: FiberNode, renderLane: Lane) {
-//   const nextChildren = renderWithHooks(workInProgress, renderLane);
-//   reconcileChildren(workInProgress, nextChildren);
-//   return workInProgress.child;
-// }
+function updateFunctionComponent(workInProgress: FiberNode) {
+  const nextChildren = renderWithHooks(workInProgress);
+  reconcileChildren(workInProgress, nextChildren);
+  return workInProgress.child;
+}
 
 function updateHostText() {
   // 没有子节点，直接返回 null
