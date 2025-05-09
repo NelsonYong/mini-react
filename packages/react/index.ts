@@ -1,15 +1,11 @@
 import { jsx, Fragment } from "./src/jsx";
 import currentDispatcher, { Dispatcher, resolveDispatcher } from "./src/currentDispatcher";
-import {
-  type ReactElementType
-} from 'shared'
+
+export * from 'shared/ReactTypes'
 
 
 export {
   Fragment
-}
-export {
-  ReactElementType
 }
 
 export default {
@@ -22,6 +18,12 @@ export const useState: Dispatcher['useState'] = (initialState) => {
   const dispatcher = resolveDispatcher();
   return dispatcher.useState(initialState);
 };
+
+export const useEffect: Dispatcher['useEffect'] = (creact, deps) => {
+  const dispatcher = resolveDispatcher();
+  return dispatcher.useEffect(creact, deps);
+};
+
 
 // 内部数据共享层
 export const __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {

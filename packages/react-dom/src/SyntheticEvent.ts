@@ -107,6 +107,7 @@ export function updateFiberProps(node: DOMElement, props: Props) {
   if ('style' in props && typeof props.style === 'object') {
     const styleObj = props.style as Record<string, string>;
     for (const key in styleObj) {
+      // @ts-ignore
       node.style[key as any] = styleObj[key];
     }
   }

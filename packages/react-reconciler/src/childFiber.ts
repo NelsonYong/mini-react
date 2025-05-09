@@ -14,6 +14,9 @@ type ExistingChildren = Map<string | number, FiberNode>;
 function ChildReconciler(shouldTrackSideEffects: boolean) {
   // 从父节点中删除指定的子节点
   function deleteChild(returnFiber: FiberNode, childToDelete: FiberNode): void {
+    // console.log('deleteChild', {
+    //   returnFiber, childToDelete, shouldTrackSideEffects
+    // });
     if (!shouldTrackSideEffects) {
       return;
     }
@@ -126,34 +129,6 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
     return fiber;
   }
 
-  function placeChild(
-    newFiber: FiberNode,
-    lastPlacedIndex: number,
-    newIndex: number,
-  ): number {
-    newFiber.index = newIndex;
-    if (!shouldTrackSideEffects) {
-      // Noop.
-      return lastPlacedIndex;
-    }
-    const current = newFiber.alternate;
-    if (current !== null) {
-      const oldIndex = current.index;
-      if (oldIndex < lastPlacedIndex) {
-        // This is a move.
-        newFiber.subtreeFlags = Placement;
-        return lastPlacedIndex;
-      } else {
-        // This item can stay in place.
-        return oldIndex;
-      }
-    } else {
-      // This is an insertion.
-      newFiber.subtreeFlags = Placement;
-      return lastPlacedIndex;
-    }
-  }
-
   // 为 Fiber 节点添加更新 flags
   function placeSingleChild(fiber: FiberNode) {
     // 首屏渲染且追踪副作用时，才添加更新 flags
@@ -161,168 +136,6 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
       fiber.flags |= Placement;
     }
     return fiber;
-  }
-
-  function createChild(
-    returnFiber: FiberNode,
-    newChild: any
-  ): FiberNode | null {
-    if (typeof newChild === 'string' || typeof newChild === 'number') {
-      // 纯文本节点
-      const fiber = new FiberNode(HostText, { content: String(newChild) }, null);
-      fiber.return = returnFiber;
-      return fiber;
-    }
-
-    if (typeof newChild === 'object' && newChild !== null) {
-      switch (newChild.$$typeof) {
-        case REACT_ELEMENT_TYPE:
-          if (newChild.type === REACT_FRAGMENT_TYPE) {
-            // Fragment
-            const fiber = createFiberFromFragment(newChild.props.children, newChild.key);
-            fiber.return = returnFiber;
-            return fiber;
-          }
-          // 普通 ReactElement
-          const fiber = createFiberFromElement(newChild);
-          fiber.return = returnFiber;
-          return fiber;
-        default:
-          // 其他类型暂不处理
-          return null;
-      }
-    }
-
-    // 其他类型（如 null、undefined、boolean）直接跳过
-    return null;
-  }
-
-  function reconcileChildrenArrayV2(
-    returnFiber: FiberNode,
-    currentFirstChild: FiberNode | null,
-    newChildren: any[],
-  ): FiberNode | null {
-
-    let resultingFirstChild: FiberNode | null = null;
-    let previousNewFiber: FiberNode | null = null;
-
-    let oldFiber = currentFirstChild;
-    let lastPlacedIndex = 0;
-    let newIdx = 0;
-    let nextOldFiber = null;
-    // 1. 将 current 中所有同级 Fiber 节点保存在 Map 中
-    const existingChildren: ExistingChildren = new Map();
-    for (; oldFiber !== null && newIdx < newChildren.length; newIdx++) {
-      if (oldFiber?.index > newIdx) {
-        nextOldFiber = oldFiber;
-        oldFiber = null;
-      } else {
-        nextOldFiber = oldFiber?.sibling;
-      }
-      const newFiber = updateFromMap(
-        returnFiber,
-        existingChildren,
-        newIdx,
-        newChildren[newIdx]
-      );
-      if (newFiber === null) {
-        // TODO: This breaks on empty slots like null children. That's
-        // unfortunate because it triggers the slow path all the time. We need
-        // a better way to communicate whether this was a miss or null,
-        // boolean, undefined, etc.
-        if (oldFiber === null) {
-          oldFiber = nextOldFiber;
-        }
-        break;
-      }
-      if (shouldTrackSideEffects) {
-        if (oldFiber && newFiber.alternate === null) {
-          // We matched the slot, but we didn't reuse the existing fiber, so we
-          // need to delete the existing child.
-          deleteChild(returnFiber, oldFiber);
-        }
-      }
-      lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
-      if (previousNewFiber === null) {
-        // TODO: Move out of the loop. This only happens for the first run.
-        resultingFirstChild = newFiber;
-      } else {
-        // TODO: Defer siblings if we're not at the right index for this slot.
-        // I.e. if we had null values before, then we want to defer this
-        // for each null value. However, we also don't want to call updateSlot
-        // with the previous one.
-        previousNewFiber.sibling = newFiber;
-      }
-      previousNewFiber = newFiber;
-      oldFiber = nextOldFiber;
-    }
-
-    if (newIdx === newChildren.length) {
-      // We've reached the end of the new children. We can delete the rest.
-      deleteRemainingChildren(returnFiber, oldFiber);
-      return resultingFirstChild;
-    }
-
-    if (oldFiber === null) {
-      // If we don't have any more existing children we can choose a fast path
-      // since the rest will all be insertions.
-      for (; newIdx < newChildren.length; newIdx++) {
-        const newFiber = createChild(returnFiber, newChildren[newIdx]);
-        if (newFiber === null) {
-          continue;
-        }
-        lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
-        if (previousNewFiber === null) {
-          // TODO: Move out of the loop. This only happens for the first run.
-          resultingFirstChild = newFiber;
-        } else {
-          previousNewFiber.sibling = newFiber;
-        }
-        previousNewFiber = newFiber;
-      }
-      return resultingFirstChild;
-    }
-
-
-
-    // Keep scanning and use the map to restore deleted items as moves.
-    for (; newIdx < newChildren.length; newIdx++) {
-      const newFiber = updateFromMap(
-        returnFiber,
-        existingChildren,
-
-        newIdx,
-        newChildren[newIdx],
-      );
-      if (newFiber !== null) {
-        if (shouldTrackSideEffects) {
-          if (newFiber.alternate !== null) {
-            // The new fiber is a work in progress, but if there exists a
-            // current, that means that we reused the fiber. We need to delete
-            // it from the child list so that we don't add it to the deletion
-            // list.
-            existingChildren.delete(
-              newFiber.key === null ? newIdx : newFiber.key,
-            );
-          }
-        }
-        lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
-        if (previousNewFiber === null) {
-          resultingFirstChild = newFiber;
-        } else {
-          previousNewFiber.sibling = newFiber;
-        }
-        previousNewFiber = newFiber;
-      }
-    }
-
-    if (shouldTrackSideEffects) {
-      // Any existing children that weren't consumed above were deleted. We need
-      // to add them to the deletion list.
-      existingChildren.forEach(child => deleteChild(returnFiber, child));
-    }
-
-    return resultingFirstChild;
   }
 
   function reconcileChildrenArray(
@@ -342,7 +155,7 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
     let current = currentFirstChild;
     while (current !== null) {
       const keyToUse =
-        current?.key !== null ? current.key : current.index.toString();
+        current.key !== null ? current.key : current.index.toString();
       existingChildren.set(keyToUse, current);
       current = current.sibling;
     }
@@ -350,17 +163,12 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
     // 2. 遍历 newChild 数组，判断是否可复用
     for (let i = 0; i < newChild.length; i++) {
       const after = newChild[i];
-      const keyToUse = (after && after.key != null) ? after.key : i.toString();
       const newFiber = updateFromMap(returnFiber, existingChildren, i, after);
 
       if (newFiber == null) {
-        // 修复点：如果 newFiber 为 null，且 existingChildren 里有 keyToUse，说明该位置的旧 fiber 没被复用，应该从 Map 删除
-        if (existingChildren.has(keyToUse)) {
-          existingChildren.delete(keyToUse);
-        }
         continue;
       }
-
+      newFiber.sibling = null
       // 3. 标记插入或移动
       newFiber.index = i;
       newFiber.return = returnFiber;
@@ -389,21 +197,23 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
           lastPlacedIndex = oldIndex;
         }
       } else {
-        // 新节点，标记插入
+        // 首屏渲染阶段，标记插入
         newFiber.flags |= Placement;
       }
     }
 
     // 4. 将 Map 中剩下的标记为删除
-    // 修复点：确保 updateFromMap 复用 fiber 后一定 existingChildren.delete(keyToUse)
-    // 如果 updateFromMap 没有做，需要在这里补充
-    existingChildren.forEach((fiber, key) => {
+    // console.log({
+    //   existingChildren
+    // });
+
+    existingChildren.forEach((fiber) => {
       deleteChild(returnFiber, fiber);
     });
 
-    console.log({
-      firstNewFiber
-    });
+    // console.log("reconcileChildrenArray end", {
+    //   returnFiber
+    // });
 
     return firstNewFiber;
   }
@@ -490,19 +300,6 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
     if (typeof newChild == 'object' && newChild !== null) {
       // 处理多个 ReactElement 节点的情况
       if (Array.isArray(newChild)) {
-        // 深拷贝一份 returnFiber，currentFiber newChild
-
-        // const returnFiberClone = { ...returnFiber };
-        // const currentFiberClone = { ...currentFiber };
-        // const newChildClone = [...newChild];
-
-        // console.log("currentFiberClone", currentFiber);
-
-        // console.log({
-        //   reconcileChildrenArrayV2: reconcileChildrenArrayV2(returnFiberClone, currentFiberClone!, newChildClone),
-        //   // reconcileChildrenArray: reconcileChildrenArray(returnFiberClone, currentFiberClone!, newChildClone)
-        // });
-
         return reconcileChildrenArray(returnFiber, currentFiber, newChild);
       }
 

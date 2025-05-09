@@ -3,11 +3,12 @@ import {
   FunctionComponent,
   HostComponent,
   Fragment,
-  WorkTag,
-  HostText
+  WorkTag
 } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
 import { Container } from 'hostConfig';
+import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
+import { Effect } from './fiberHooks';
 
 export class FiberNode {
   tag: WorkTag;
@@ -58,6 +59,9 @@ export class FiberRootNode {
   container: Container;
   current: FiberNode;
   finishedWork: FiberNode | null;
+  pendingLanes: Lanes;
+  finishedLane: Lane;
+  pendingPassiveEffects: PendingPassiveEffects;
   constructor(container: Container, hostRootFiber: FiberNode) {
     this.container = container;
     this.current = hostRootFiber;
@@ -65,7 +69,18 @@ export class FiberRootNode {
     hostRootFiber.stateNode = this;
     // 指向更新完成之后的 hostRootFiber
     this.finishedWork = null;
+    this.pendingLanes = NoLanes;
+    this.finishedLane = NoLane;
+    this.pendingPassiveEffects = {
+      unmount: [],
+      update: []
+    };
   }
+}
+
+export interface PendingPassiveEffects {
+  unmount: Effect[];
+  update: Effect[];
 }
 
 // 根据 FiberRootNode.current 创建 workInProgress
@@ -96,14 +111,11 @@ export const createWorkInProgress = (
   workInProgress.memoizedProps = current.memoizedProps;
   workInProgress.memoizedState = current.memoizedState;
 
+  // 清空 deletions
+  workInProgress.deletions = null;
+
   return workInProgress;
 };
-
-export function createFiberFromText(content: string) {
-  const fiber = new FiberNode(HostText, content, null);
-  return fiber;
-}
-
 
 // 根据 DOM 节点创建新的 Fiber 节点
 export function createFiberFromElement(element: ReactElementType): FiberNode {
