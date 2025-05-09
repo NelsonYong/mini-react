@@ -3,7 +3,8 @@ import {
   FunctionComponent,
   HostComponent,
   Fragment,
-  WorkTag
+  WorkTag,
+  HostText
 } from './workTags';
 import { NoFlags, Flags } from './fiberFlags';
 import { Container } from 'hostConfig';
@@ -97,6 +98,12 @@ export const createWorkInProgress = (
 
   return workInProgress;
 };
+
+export function createFiberFromText(content: string) {
+  const fiber = new FiberNode(HostText, content, null);
+  return fiber;
+}
+
 
 // 根据 DOM 节点创建新的 Fiber 节点
 export function createFiberFromElement(element: ReactElementType): FiberNode {
