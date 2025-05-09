@@ -97,6 +97,28 @@ export function initEvent(container: Container, eventType: string) {
 // 将事件的回调保存在 DOM 中
 export function updateFiberProps(node: DOMElement, props: Props) {
   node[elementPropsKey] = props;
+
+  // 处理 className
+  if ('className' in props) {
+    node.className = props.className || '';
+  }
+
+  // 处理 style
+  if ('style' in props && typeof props.style === 'object') {
+    const styleObj = props.style as Record<string, string>;
+    for (const key in styleObj) {
+      node.style[key as any] = styleObj[key];
+    }
+  }
+
+  // 处理 src、href 等常规属性
+  const domProps = ['src', 'href', 'alt', 'title', 'id', 'value', 'type', 'placeholder', 'disabled', 'checked'];
+  domProps.forEach(prop => {
+    if (prop in props) {
+      // @ts-ignore
+      node[prop] = props[prop];
+    }
+  });
 }
 
 

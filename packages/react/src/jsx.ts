@@ -10,6 +10,7 @@ import {
 } from 'shared/ReactTypes';
 
 
+
 //  react 官方的 jsx 方法
 // import { jsx as _jsx } from 'react/jsx-runtime';
 // function App() {
@@ -96,3 +97,4 @@ export const jsxDEV = (type: ElementType, config: any) => {
   }
   return ReactElement(type, key, ref, props);
 };
+

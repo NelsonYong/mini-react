@@ -1,19 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { internals } from 'react';
 import { FiberNode } from './fiber';
-import { UpdateQueue, createUpdate, enqueueUpdate, processUpdateQueue } from './updateQueue';
+import {
+  UpdateQueue,
+  createUpdate,
+  enqueueUpdate,
+  processUpdateQueue
+} from './updateQueue';
 import { Dispatch, Dispatcher } from 'react/src/currentDispatcher';
 import { createUpdateQueue } from './updateQueue';
 import { Action } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './workLoop';
 
-// 当前正在处理的 FiberNode
+// 当前正在被处理的 FiberNode
 let currentlyRenderingFiber: FiberNode | null = null;
-// Hooks 链表中当前正在处理的 Hook
+// Hooks 链表中当前正在工作的 Hook
 let workInProgressHook: Hook | null = null;
 let currentHook: Hook | null = null;
-
 
 const { currentDispatcher } = internals;
 
@@ -24,7 +26,91 @@ export interface Hook {
   next: Hook | null;
 }
 
-// packages/react-reconciler/src/fiberHooks.ts
+// 执行函数组件中的函数
+export function renderWithHooks(workInProgress: FiberNode) {
+  // 赋值
+  currentlyRenderingFiber = workInProgress;
+  // 重置 Hooks 链表
+  workInProgress.memoizedState = null;
+
+  // 判断 Hooks 被调用的时机
+  const current = workInProgress.alternate;
+  if (__DEV__) {
+    console.log(current !== null ? '组件的更新阶段' : '首屏渲染阶段');
+  }
+  if (current !== null) {
+    // 组件的更新阶段(update)
+    currentDispatcher.current = HooksDispatcherOnUpdate;
+  } else {
+    // 首屏渲染阶段(mount)
+    currentDispatcher.current = HooksDispatcherOnMount;
+  }
+
+  // 函数保存在 type 字段中
+  const Component = workInProgress.type;
+  const props = workInProgress.pendingProps;
+  // 执行函数
+  const children = Component(props);
+
+  // 重置
+  currentlyRenderingFiber = null;
+  workInProgressHook = null;
+  currentHook = null;
+
+  return children;
+}
+
+const HooksDispatcherOnMount: Dispatcher = {
+  useState: mountState
+};
+
+const HooksDispatcherOnUpdate: Dispatcher = {
+  useState: updateState
+};
+
+function mountState<State>(
+  initialState: (() => State) | State
+): [State, Dispatch<State>] {
+  // 当前正在工作的 useState
+  const hook = mountWorkInProgressHook();
+  // 获取当前 useState 对应的 Hook 数据
+  let memoizedState;
+  if (initialState instanceof Function) {
+    memoizedState = initialState();
+  } else {
+    memoizedState = initialState;
+  }
+  hook.memoizedState = memoizedState;
+
+  const queue = createUpdateQueue<State>();
+  hook.queue = queue;
+
+  // @ts-ignore
+  // 实现 dispatch
+  const dispatch = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
+  queue.dispatch = dispatch;
+
+  return [memoizedState, dispatch];
+}
+
+function updateState<State>(): [State, Dispatch<State>] {
+  if (__DEV__) {
+    console.log('updateState 开始');
+  }
+  // 当前正在工作的 useState
+  const hook = updateWorkInProgressHook();
+
+  // 计算新 state 的逻辑
+  const queue = hook.queue as UpdateQueue<State>;
+  const pending = queue.shared.pending;
+
+  if (pending !== null) {
+    const { memoizedState } = processUpdateQueue(hook.memoizedState, pending);
+    hook.memoizedState = memoizedState;
+  }
+  return [hook.memoizedState, queue.dispatch as Dispatch<State>];
+}
+
 function updateWorkInProgressHook(): Hook {
   // TODO render 阶段触发的更新
   // 保存链表中的下一个 Hook
@@ -72,91 +158,6 @@ function updateWorkInProgressHook(): Hook {
   }
   return workInProgressHook;
 }
-
-
-// 执行函数组件中的函数
-export function renderWithHooks(workInProgress: FiberNode) {
-  // 赋值
-  currentlyRenderingFiber = workInProgress;
-  workInProgress.memoizedState = null;
-
-  // 判断 Hooks 被调用的时机
-  const current = workInProgress.alternate;
-  console.log("current", current);
-
-  if (current !== null) {
-    // 组件的更新阶段(update)
-    currentDispatcher.current = HooksDispatcherOnUpdate;
-  } else {
-    // 首屏渲染阶段(mount)
-    currentDispatcher.current = HooksDispatcherOnMount;
-  }
-
-  // 函数保存在 type 字段中
-  const Component = workInProgress.type;
-  const props = workInProgress.pendingProps;
-  // 执行函数
-  const children = Component(props);
-
-  // 重置
-  currentlyRenderingFiber = null;
-  workInProgressHook = null;
-
-  return children;
-}
-
-const HooksDispatcherOnMount: Dispatcher = {
-  useState: mountState
-};
-
-const HooksDispatcherOnUpdate: Dispatcher = {
-  useState: updateState
-};
-
-function mountState<State>(
-  initialState: (() => State) | State
-): [State, Dispatch<State>] {
-  // 当前正在处理的 useState
-  const hook = mountWorkInProgressHook();
-  // 获取当前 useState 对应的 Hook 数据
-  let memorizedState;
-  if (initialState instanceof Function) {
-    memorizedState = initialState();
-  } else {
-    memorizedState = initialState;
-  }
-  hook.memoizedState = memorizedState;
-
-  const queue = createUpdateQueue<State>();
-  hook.queue = queue;
-
-  // @ts-ignore
-  // 实现 dispatch
-  const dispatch = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
-  queue.dispatch = dispatch;
-
-  return [memorizedState, dispatch];
-}
-
-function updateState<State>(): [State, Dispatch<State>] {
-  if (__DEV__) {
-    console.log('updateState 开始');
-  }
-  // 当前正在工作的 useState
-  const hook = updateWorkInProgressHook();
-
-  // 计算新 state 的逻辑
-  const queue = hook.queue as UpdateQueue<State>;
-  const pending = queue.shared.pending;
-
-  if (pending !== null) {
-    const { memoizedState } = processUpdateQueue(hook.memoizedState, pending);
-    hook.memoizedState = memoizedState;
-  }
-  return [hook.memoizedState, queue.dispatch as Dispatch<State>];
-}
-
-
 
 function mountWorkInProgressHook(): Hook {
   const hook: Hook = {
