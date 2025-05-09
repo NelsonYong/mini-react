@@ -68,17 +68,12 @@ const commitMutationEffectsOnFiber = (
   root: FiberRootNode
 ) => {
   const flags = finishedWork.flags;
-  console.log('commitMutationEffectsOnFiber', finishedWork, finishedWork.flags);
-
   if ((flags & Placement) !== NoFlags) {
     commitPlacement(finishedWork);
     // 处理完之后，从 flags 中删除 Placement 标记
     finishedWork.flags &= ~Placement;
   }
   if ((flags & ChildDeletion) !== NoFlags) {
-    console.log('commit ChildDeletion', {
-      finishedWork, deletions: finishedWork.deletions
-    })
     const deletions = finishedWork.deletions;
     if (deletions !== null) {
       deletions.forEach((childToDelete) => {
@@ -104,7 +99,7 @@ const commitMutationEffectsOnFiber = (
 // 执行 DOM 插入操作，将 FiberNode 对应的 DOM 插入 parent DOM 中
 const commitPlacement = (finishedWork: FiberNode) => {
   if (__DEV__) {
-    console.log('执行 Placement 操作', finishedWork);
+    console.log('Commit Placement', finishedWork);
   }
   // parent DOM
   const hostParent = getHostParent(finishedWork) as Container;
@@ -220,7 +215,7 @@ function recordChildrenToDelete(
 // 删除节点及其子树
 const commitDeletion = (childToDelete: FiberNode, root: FiberRootNode) => {
   if (__DEV__) {
-    console.log('执行 Deletion 操作', childToDelete);
+    console.log('Commit Deletion', childToDelete);
   }
 
 

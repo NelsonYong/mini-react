@@ -16,9 +16,6 @@ export type TextInstance = Text;
 
 
 export const createInstance = (type: string, props: any): Instance => {
-  // TODO: 处理 props
-  console.log("props", props);
-
   const element = document.createElement(type);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -47,14 +44,12 @@ export const appendChildToContainer = (
 
 export const commitUpdate = (fiber: FiberNode) => {
   if (__DEV__) {
-    console.log('执行 Update 操作', fiber);
+    console.log('Commit Update', fiber);
   }
   switch (fiber.tag) {
     case HostComponent:
       return updateFiberProps(fiber.stateNode, fiber.memoizedProps);
     case HostText:
-      console.log("变化");
-
       const text = fiber.memoizedProps.content;
       commitTextUpdate(fiber.stateNode, text);
       break;
@@ -70,8 +65,6 @@ export const commitTextUpdate = (
   textInstance: TextInstance,
   content: string
 ) => {
-  console.log("content", content);
-
   textInstance.textContent = content;
 };
 

@@ -14,9 +14,9 @@ type ExistingChildren = Map<string | number, FiberNode>;
 function ChildReconciler(shouldTrackSideEffects: boolean) {
   // 从父节点中删除指定的子节点
   function deleteChild(returnFiber: FiberNode, childToDelete: FiberNode): void {
-    console.log('deleteChild', {
-      returnFiber, childToDelete, shouldTrackSideEffects
-    });
+    // console.log('deleteChild', {
+    //   returnFiber, childToDelete, shouldTrackSideEffects
+    // });
     if (!shouldTrackSideEffects) {
       return;
     }
@@ -203,17 +203,17 @@ function ChildReconciler(shouldTrackSideEffects: boolean) {
     }
 
     // 4. 将 Map 中剩下的标记为删除
-    console.log({
-      existingChildren
-    });
+    // console.log({
+    //   existingChildren
+    // });
 
     existingChildren.forEach((fiber) => {
       deleteChild(returnFiber, fiber);
     });
 
-    console.log("reconcileChildrenArray end", {
-      returnFiber
-    });
+    // console.log("reconcileChildrenArray end", {
+    //   returnFiber
+    // });
 
     return firstNewFiber;
   }

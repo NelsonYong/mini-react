@@ -1,15 +1,11 @@
 import { jsx, Fragment } from "./src/jsx";
 import currentDispatcher, { Dispatcher, resolveDispatcher } from "./src/currentDispatcher";
-import {
-  type ReactElementType
-} from 'shared'
+
+export * from 'shared/ReactTypes'
 
 
 export {
   Fragment
-}
-export {
-  ReactElementType
 }
 
 export default {
