@@ -11,11 +11,11 @@ export default defineConfig({
     alias: [
       {
         find: "react",
-        replacement: resolvePkgPath("react"),
+        replacement: resolvePkgPath("react", true),
       },
       {
         find: "react-dom",
-        replacement: resolvePkgPath("react-dom"),
+        replacement: resolvePkgPath("react-dom", true),
       },
       {
         find: "hostConfig",
