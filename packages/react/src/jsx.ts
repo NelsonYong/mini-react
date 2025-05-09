@@ -29,7 +29,8 @@ const ReactElement = function (
     key,
     ref,
     props,
-    __mark: 'erxiao'
+    __author: 'NelsonYong',
+    __github: 'https://github.com/NelsonYong'
   };
   return element;
 };
