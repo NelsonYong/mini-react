@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [count1, setCount1] = useState(0);
+
+  useEffect(() => {
+    console.log("mount");
+  }, []);
+
+  useEffect(() => {
+    console.log("update", count);
+  }, [count]);
 
   return (
     <div>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <button
+          onClick={() => {
+            setCount((count) => count + 1);
+            setCount1((count1) => count1 + 1);
+          }}
+        >
+          {count} {count1}
         </button>
-        <p>
-          <>Edit</> <code>src/App.tsx</code>
-          <>and save to test HMR</>
-        </p>
       </div>
     </div>
   );
